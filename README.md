@@ -11,6 +11,7 @@ Use it now here: [SUDAL](https://alexriss.github.io/SudalMaps/)
 ## Features
 
 - Search for places in English or Korean, using Google Places or Kakao Local, with built-in presets and OpenStreetMap Nominatim as fallbacks.
+- Use the microphone beside a search field to enter a place or route endpoint by voice in English or Korean. Browser speech recognition may require microphone permission and an internet connection; type instead if it is unavailable.
 - Search with Google, then send the destination to Naver Maps or Kakao Maps for turn-by-turn driving directions in Korea, where Google Maps does not currently offer driving navigation.
 - Use the **Apps / Web** toggle for Naver and Kakao place and directions links. Apps mode opens the installed map app when available and falls back to its HTTPS map link; Web mode opens HTTPS links directly.
 - Show a full-screen taxi card with the destination's Korean name and road address, play the request aloud in Korean, or copy the address.
