@@ -46,22 +46,64 @@
     .link-section-row.drop-before::before { top: -5px; }
     .link-section-row.drop-after::after { bottom: -5px; }
     .speech-active { animation: speech-active-pulse 1s ease-in-out infinite; }
+    .mode-label-short { display: none; }
     @keyframes speech-active-pulse { 50% { transform: scale(1.12); } }
     @media (prefers-reduced-motion: reduce) {
       .speech-active { animation: none; }
     }
+    @media (max-width: 900px) {
+      header .version-label { display: none; }
+    }
+    @media (max-width: 768px) {
+      header .theme-controls { display: none; }
+    }
+    @media (max-width: 720px) {
+      header .header-inner,
+      main.px-4 { padding-left: 0.75rem; padding-right: 0.75rem; }
+      main > section.p-4.border { padding-left: 0.75rem; padding-right: 0.75rem; }
+    }
+    @media (max-width: 640px) {
+      header .header-inner,
+      main.px-4 { padding-left: 0.5rem; padding-right: 0.5rem; }
+      main > section.p-4.border { padding-left: 0.5rem; padding-right: 0.5rem; }
+      #spot-search-container .spot-search-row,
+      #spot-search-container .spot-search-actions,
+      #route-search-container .route-search-row,
+      #route-search-container .route-search-actions { gap: 0.25rem; }
+    }
+    @media (max-width: 520px) {
+      header #target-btn { display: none; }
+    }
     @media (max-width: 480px) {
-      header .header-inner { display: grid; grid-template-columns: minmax(0, 1fr); }
-      header .header-controls { width: 100%; min-width: 0; margin-left: 0; flex-wrap: wrap; justify-content: flex-end; }
-      main .mode-switcher { grid-template-columns: minmax(0, 1fr); }
-      .spot-search-row { flex-wrap: wrap; }
+      header .header-inner { padding-left: 0.25rem; padding-right: 0.25rem; }
+      header .header-controls { min-width: 0; margin-left: 0; flex: 0 0 auto; }
+      main.px-4 { padding-left: 0.25rem; padding-right: 0.25rem; }
+      main > section.p-4.border { padding: 0.75rem 0.375rem; border-width: 0; }
+      main .mode-switcher { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.25rem; padding: 0.125rem; border-width: 0; }
+      main .mode-switcher button { min-width: 0; padding-top: 0.5rem; padding-bottom: 0.5rem; gap: 0.25rem; font-size: 0.75rem; }
+      main .mode-label-full { display: none; }
+      main .mode-label-short { display: inline; }
+      #spot-search-container .spot-search-row { flex-wrap: wrap; gap: 0.1875rem; }
       .spot-search-row > input { flex: 1 1 100%; min-width: 0; }
-      #spot-search-container .spot-search-actions { width: 100%; margin-left: 0; flex-wrap: wrap; justify-content: flex-end; }
-      #route-search-container .route-search-row { display: grid; grid-template-columns: 3rem minmax(0, 1fr); align-items: center; }
+      #spot-search-container .spot-search-actions { width: 100%; margin-left: 0; flex-wrap: wrap; justify-content: flex-end; gap: 0.1875rem; }
+      #route-search-container .route-search-row { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: 0.1875rem; }
+      #route-search-container .route-search-row > span { display: none; }
       .route-search-row > input { width: 100%; min-width: 0; }
-      #route-search-container .route-search-actions { grid-column: 1 / -1; justify-self: end; max-width: 100%; flex-wrap: wrap; justify-content: flex-end; }
+      #route-search-container .route-search-actions { grid-column: 1 / -1; justify-self: end; max-width: 100%; flex-wrap: wrap; justify-content: flex-end; gap: 0.1875rem; }
+      #options-modal .options-modal-footer,
+      #options-modal .options-modal-actions { gap: 0.125rem; }
+      #options-modal .options-modal-actions button { white-space: nowrap; }
       .spot-summary-header, .route-details-header { flex-wrap: wrap; }
       .spot-summary-actions, .route-details-actions { margin-left: auto; flex-wrap: wrap; }
+    }
+    @media (max-width: 360px) {
+      header .header-inner,
+      main.px-4 { padding-left: 0.125rem; padding-right: 0.125rem; }
+      main > section.p-4.border { padding-left: 0.25rem; padding-right: 0.25rem; }
+      #spot-search-container .spot-search-row,
+      #spot-search-container .spot-search-actions,
+      #route-search-container .route-search-row,
+      #route-search-container .route-search-actions { gap: 0.125rem; }
     }
     .route-search-actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
   </style>
@@ -79,18 +121,18 @@
         <div>
           <div class="flex items-center gap-1.5">
             <h1 class="font-black text-base tracking-tight leading-none"><span id="sudal-wordmark" class="select-none" onpointerdown="startBrandInfoHold(event)" onpointerup="cancelBrandInfoHold()" onpointerleave="cancelBrandInfoHold()" onpointercancel="cancelBrandInfoHold()" ondblclick="openBrandInfo()" oncontextmenu="event.preventDefault()">Sudal Maps</span> <span class="text-xs font-bold text-sky-500 dark:text-sky-400">수달</span></h1>
-            <span class="text-[0.625rem] font-semibold px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-600 dark:text-sky-300">v0.1</span>
+            <span id="header-version" class="version-label text-[0.625rem] font-semibold px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-600 dark:text-sky-300">v0.1</span>
           </div>
         </div>
       </div>
 
       <div class="header-controls flex items-center gap-1.5">
-        <div class="inline-flex rounded-lg p-0.5 bg-slate-200/80 dark:bg-slate-800 text-xs">
-          <button onclick="setTheme('system')" id="theme-system" class="px-2 py-1 rounded-md font-medium transition">Auto</button>
-          <button onclick="setTheme('light')" id="theme-light" class="px-2 py-1 rounded-md font-medium transition">☀️</button>
-          <button onclick="setTheme('dark')" id="theme-dark" class="px-2 py-1 rounded-md font-medium transition">🌙</button>
+        <div class="theme-controls inline-flex rounded-lg p-0.5 bg-slate-200/80 dark:bg-slate-800 text-xs" role="group" aria-label="Color theme">
+          <button type="button" onclick="setTheme('system')" id="theme-system" data-theme-choice="system" aria-label="Use system theme" aria-pressed="false" class="px-2 py-1 rounded-md font-medium transition">Auto</button>
+          <button type="button" onclick="setTheme('light')" id="theme-light" data-theme-choice="light" aria-label="Use light theme" aria-pressed="false" class="px-2 py-1 rounded-md font-medium transition">☀️</button>
+          <button type="button" onclick="setTheme('dark')" id="theme-dark" data-theme-choice="dark" aria-label="Use dark theme" aria-pressed="false" class="px-2 py-1 rounded-md font-medium transition">🌙</button>
         </div>
-        <button onclick="toggleLinkTarget()" id="target-btn" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition">
+        <button type="button" onclick="toggleLinkTarget()" id="target-btn" aria-label="Toggle Web and app link targets" aria-pressed="false" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition">
           💻 Web
         </button>
         <button onclick="openOptionsModal()" aria-label="Options" title="Options" class="h-7 w-7 flex items-center justify-center rounded-lg text-base bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition">
@@ -104,11 +146,11 @@
 
     <!-- Mode Switcher -->
     <div class="grid grid-cols-2 mode-switcher p-1 rounded-xl bg-slate-200/80 dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800">
-      <button id="mode-spot-btn" onclick="switchMode('spot')" class="py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1.5">
-        📍 Single Spot
+      <button id="mode-spot-btn" aria-label="Single Spot" onclick="switchMode('spot')" class="py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1.5">
+        📍 <span class="mode-label-full">Single Spot</span><span class="mode-label-short" aria-hidden="true">Single</span>
       </button>
-      <button id="mode-route-btn" onclick="switchMode('route')" class="py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1.5">
-        🔄 Route (A → B)
+      <button id="mode-route-btn" aria-label="Route (A to B)" onclick="switchMode('route')" class="py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1.5">
+        🔄 <span class="mode-label-full">Route (A → B)</span><span class="mode-label-short" aria-hidden="true">Route</span>
       </button>
     </div>
 
@@ -183,8 +225,8 @@
         </div>
 
         <div class="flex gap-2 items-center route-search-row">
-          <span class="w-12 text-xs font-bold text-sky-600 dark:text-sky-400 uppercase shrink-0">Start</span>
-          <input id="route-start-input" type="text" placeholder="Current GPS Location (or search start...)" 
+          <span aria-hidden="true" class="w-12 text-xs font-bold text-sky-600 dark:text-sky-400 uppercase shrink-0">Start</span>
+          <input id="route-start-input" type="text" aria-label="Start location" placeholder="Current GPS Location (or search start...)"
             class="min-w-0 w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
             onkeydown="if(event.key==='Enter') runSearch('start')" />
           <div class="route-search-actions">
@@ -233,8 +275,8 @@
         </div>
 
         <div class="flex gap-2 items-center route-search-row">
-          <span class="w-12 text-xs font-bold text-rose-500 uppercase shrink-0">End</span>
-          <input id="route-end-input" type="text" placeholder="Search destination in English or Korean..." 
+          <span aria-hidden="true" class="w-12 text-xs font-bold text-rose-500 uppercase shrink-0">End</span>
+          <input id="route-end-input" type="text" aria-label="Destination" placeholder="Search destination in English or Korean..."
             class="min-w-0 w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
             onkeydown="if(event.key==='Enter') runSearch('end')" />
           <div class="route-search-actions">
@@ -568,18 +610,38 @@
         <button onclick="closeOptionsModal()" aria-label="Close options" class="text-slate-400 hover:text-slate-200">✕</button>
       </div>
       <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-        Choose which map sections appear and change their order. These settings are stored in this browser.
+        Customize appearance, text size, link targets, and which map sections appear.
       </p>
 
-      <section class="space-y-2 border-t border-slate-200 pt-3 dark:border-slate-800">
-        <h4 class="text-[0.6875rem] font-bold uppercase tracking-wider text-slate-400">Text &amp; UI Size</h4>
-        <div class="flex items-center gap-2">
-          <button id="ui-scale-decrease" type="button" onclick="changeUiScale(-1)" aria-label="Decrease text and interface size" class="rounded-lg bg-slate-200 px-3 py-1.5 font-semibold dark:bg-slate-800">A−</button>
-          <output id="ui-scale-value" class="min-w-12 text-center text-sm font-semibold" aria-live="polite">100%</output>
-          <button id="ui-scale-increase" type="button" onclick="changeUiScale(1)" aria-label="Increase text and interface size" class="rounded-lg bg-slate-200 px-3 py-1.5 font-semibold dark:bg-slate-800">A+</button>
-          <button type="button" onclick="resetUiScale()" class="ml-auto rounded-lg px-3 py-1.5 text-xs font-medium text-sky-600 hover:bg-sky-500/10 dark:text-sky-400">Reset</button>
+      <section class="space-y-3 border-t border-slate-200 pt-3 dark:border-slate-800">
+        <h4 class="text-[0.6875rem] font-bold uppercase tracking-wider text-slate-400">Appearance &amp; UI Size</h4>
+        <div class="space-y-1">
+          <p class="text-xs text-slate-500 dark:text-slate-400">Color theme</p>
+          <div class="inline-flex rounded-lg p-0.5 bg-slate-200/80 dark:bg-slate-800 text-xs" role="group" aria-label="Color theme">
+            <button type="button" onclick="setTheme('system')" data-theme-choice="system" aria-pressed="false" class="px-2 py-1 rounded-md font-medium transition">Auto</button>
+            <button type="button" onclick="setTheme('light')" data-theme-choice="light" aria-pressed="false" class="px-2 py-1 rounded-md font-medium transition">☀️ Light</button>
+            <button type="button" onclick="setTheme('dark')" data-theme-choice="dark" aria-pressed="false" class="px-2 py-1 rounded-md font-medium transition">🌙 Dark</button>
+          </div>
         </div>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Enlarges text and interface elements while the page reflows to fit. Saved on this device.</p>
+        <div class="space-y-1">
+          <p class="text-xs text-slate-500 dark:text-slate-400">Text &amp; UI size</p>
+          <div class="flex items-center gap-2">
+            <button id="ui-scale-decrease" type="button" onclick="changeUiScale(-1)" aria-label="Decrease text and interface size" class="rounded-lg bg-slate-200 px-3 py-1.5 font-semibold dark:bg-slate-800">A−</button>
+            <output id="ui-scale-value" class="min-w-12 text-center text-sm font-semibold" aria-live="polite">100%</output>
+            <button id="ui-scale-increase" type="button" onclick="changeUiScale(1)" aria-label="Increase text and interface size" class="rounded-lg bg-slate-200 px-3 py-1.5 font-semibold dark:bg-slate-800">A+</button>
+            <button type="button" onclick="resetUiScale()" class="ml-auto rounded-lg px-3 py-1.5 text-xs font-medium text-sky-600 hover:bg-sky-500/10 dark:text-sky-400">Reset</button>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Enlarges text and interface elements while the page reflows to fit. Saved on this device.</p>
+        </div>
+      </section>
+
+      <section class="space-y-2 border-t border-slate-200 pt-3 dark:border-slate-800">
+        <h4 class="text-[0.6875rem] font-bold uppercase tracking-wider text-slate-400">Link Target</h4>
+        <div class="inline-flex rounded-lg p-0.5 bg-slate-200/80 dark:bg-slate-800 text-xs" role="group" aria-label="Link target">
+          <button type="button" onclick="setLinkTarget('web')" data-link-target-choice="web" aria-pressed="true" class="px-3 py-1.5 rounded-md font-bold bg-white dark:bg-slate-700 shadow-sm transition">💻 Web</button>
+          <button type="button" onclick="setLinkTarget('apps')" data-link-target-choice="apps" aria-pressed="false" class="px-3 py-1.5 rounded-md font-medium text-slate-500 transition">📱 Apps</button>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Choose whether supported map links open in the browser or installed apps.</p>
       </section>
 
       <section class="space-y-2 border-t border-slate-200 pt-3 dark:border-slate-800">
@@ -642,9 +704,12 @@
         </div>
       </section>
 
-      <div class="flex justify-end gap-2 pt-2">
-        <button onclick="closeOptionsModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-200 dark:bg-slate-800">Cancel</button>
-        <button onclick="saveOptions()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-sky-600 text-white">Save Options</button>
+      <div class="options-modal-footer flex items-center justify-between gap-2 pt-2">
+        <span id="options-version" class="text-[0.625rem] font-semibold px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-600 dark:text-sky-300"></span>
+        <div class="options-modal-actions flex justify-end gap-2">
+          <button onclick="closeOptionsModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-200 dark:bg-slate-800">Cancel</button>
+          <button onclick="saveOptions()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-sky-600 text-white">Save</button>
+        </div>
       </div>
     </div>
   </div>
@@ -755,9 +820,10 @@
       const isDark = themePref === 'dark' || (themePref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
       document.documentElement.classList.toggle('dark', isDark);
 
-      ['system', 'light', 'dark'].forEach(m => {
-        const btn = document.getElementById(`theme-${m}`);
-        if (btn) btn.className = (m === themePref) ? 'px-2 py-1 rounded-md font-bold bg-white dark:bg-slate-700 shadow-sm transition' : 'px-2 py-1 rounded-md font-medium text-slate-500 transition';
+      document.querySelectorAll('[data-theme-choice]').forEach(btn => {
+        const isSelected = btn.dataset.themeChoice === themePref;
+        btn.className = isSelected ? 'px-2 py-1 rounded-md font-bold bg-white dark:bg-slate-700 shadow-sm transition' : 'px-2 py-1 rounded-md font-medium text-slate-500 transition';
+        btn.setAttribute('aria-pressed', String(isSelected));
       });
 
       if (map) {
@@ -1633,8 +1699,26 @@
     }
 
     function toggleLinkTarget() {
-      useMobileAppSchemes = !useMobileAppSchemes;
-      document.getElementById('target-btn').innerText = useMobileAppSchemes ? '📱 Apps' : '💻 Web';
+      setLinkTarget(useMobileAppSchemes ? 'web' : 'apps');
+    }
+
+    function setLinkTarget(target) {
+      useMobileAppSchemes = target === 'apps';
+      const targetButton = document.getElementById('target-btn');
+      if (targetButton) {
+        targetButton.innerText = useMobileAppSchemes ? '📱 Apps' : '💻 Web';
+        targetButton.setAttribute('aria-pressed', String(useMobileAppSchemes));
+      }
+
+      const selectedTarget = useMobileAppSchemes ? 'apps' : 'web';
+      document.querySelectorAll('[data-link-target-choice]').forEach(button => {
+        const isSelected = button.dataset.linkTargetChoice === selectedTarget;
+        button.className = isSelected
+          ? 'px-3 py-1.5 rounded-md font-bold bg-white dark:bg-slate-700 shadow-sm transition'
+          : 'px-3 py-1.5 rounded-md font-medium text-slate-500 transition';
+        button.setAttribute('aria-pressed', String(isSelected));
+      });
+
       updateLaunchModeIndicator();
     }
 
@@ -1829,6 +1913,7 @@
       document.querySelectorAll('details[name="search-provider-menu"]').forEach(menu => {
         menu.open = false;
       });
+      document.getElementById('options-version').textContent = document.getElementById('header-version').textContent;
       updateKakaoOriginStatus();
       document.getElementById('api-key-google').value = localStorage.getItem('sudal_google_key') || '';
       document.getElementById('api-key-kakao').value = localStorage.getItem('sudal_kakao_key') || '';
