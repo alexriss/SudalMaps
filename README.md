@@ -14,7 +14,7 @@ See the API Keys section below for information how to set the app up for all fea
 
 | Main app | Taxi card |
 | --- | --- |
-| ![Sudal Maps main screen](screenshots/main.jpg) | ![Sudal Maps taxi card](screenshots/taxi.png) |
+| ![Sudal Maps main screen](screenshots/main.jpg) | ![Sudal Maps taxi card](screenshots/taxi.jpg) |
 
 ## Features
 
