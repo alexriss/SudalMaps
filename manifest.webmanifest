@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "SUDAL - Korea Map Bridge",
-  "short_name": "SUDAL",
+  "name": "Sudal Maps",
+  "short_name": "Sudal Maps",
   "description": "Search Korean places and bridge destinations to local navigation apps.",
   "start_url": "./",
   "scope": "./",
@@ -11,16 +11,16 @@
   "theme_color": "#0f766e",
   "icons": [
     {
-      "src": "./icons/icon-192.png",
+      "src": "./images/logo_transparent-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-512.png",
+      "src": "./images/logo_transparent-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }

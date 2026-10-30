@@ -1,21 +1,30 @@
-# SUDAL (수달)
+<img src="images/logo_transparent-512.png" alt="Sudal Maps logo" width="100" align="left" />
+
+# Sudal Maps (수달)
 
 Search Korean places, then open them in the map app that works best for you.
 
-Use it now here: [SUDAL](https://alexriss.github.io/SudalMaps/)
+## Use it now
+
+[Sudal Maps](https://alexriss.github.io/SudalMaps/)
+
+See the API Keys section below for information how to set the app up for all features.
+
+## Screenshots
 
 | Main app | Taxi card |
 | --- | --- |
-| ![SUDAL main screen](screenshots/main.jpg) | ![SUDAL taxi card](screenshots/taxi.png) |
+| ![Sudal Maps main screen](screenshots/main.jpg) | ![Sudal Maps taxi card](screenshots/taxi.png) |
 
 ## Features
 
 - Search for places in English or Korean, using Google Places or Kakao Local, with built-in presets and OpenStreetMap Nominatim as fallbacks.
 - Use the microphone beside a search field to enter a place or route endpoint by voice in English or Korean. Browser speech recognition may require microphone permission and an internet connection; type instead if it is unavailable.
 - Search with Google, then send the destination to Naver Maps or Kakao Maps for turn-by-turn driving directions in Korea, where Google Maps does not currently offer driving navigation.
+- Save favorite places for either single-spot or route searches. Saved places and routes can be renamed by double-clicking or pressing and holding a tile; saved places can also be deleted with the X. Saved places wrap across lines and can switch to vertical scrolling after a configurable number.
 - Use the **Apps / Web** toggle for Naver and Kakao place and directions links. Apps mode opens the installed map app when available and falls back to its HTTPS map link; Web mode opens HTTPS links directly.
 - Show a full-screen taxi card with the destination's Korean name and road address, play the request aloud in Korean, or copy the address.
-- Install SUDAL as a Progressive Web App (PWA) from your browser's **Install** or **Add to Home Screen** option.
+- Install Sudal Maps as a Progressive Web App (PWA) from your browser's **Install** or **Add to Home Screen** option.
 
 ## API keys
 
@@ -31,4 +40,4 @@ Kakao Local requires the site to be registered in Kakao Developers under **App >
 
 ## License
 
-SUDAL is licensed under the [GNU General Public License v3.0 or later](LICENSE). Third-party services, libraries, and assets remain subject to their own terms.
+Sudal Maps is licensed under the [GNU General Public License v3.0 or later](LICENSE). Third-party services, libraries, and assets remain subject to their own terms.

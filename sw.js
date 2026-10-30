@@ -1,11 +1,11 @@
-const SHELL_CACHE = 'sudal-shell-v1';
+const SHELL_CACHE = 'sudal-shell-v2';
 const CDN_CACHE = 'sudal-cdn-v1';
 const SHELL_FILES = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
+  './images/logo_transparent-192.png',
+  './images/logo_transparent-512.png'
 ];
 const CDN_ASSETS = [
   'https://cdn.tailwindcss.com/',
