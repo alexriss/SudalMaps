@@ -38,6 +38,7 @@
     .dark .icon-action-button { background: #1e293b; color: #cbd5e1; }
     .dark .icon-action-button:hover { background: #334155; color: #38bdf8; }
     .icon-action-button:focus-visible { outline: 2px solid #0ea5e9; outline-offset: 2px; }
+    .icon-action-button:disabled { opacity: 0.4; cursor: not-allowed; }
     .link-section-row { position: relative; transition: background-color 120ms ease, box-shadow 120ms ease, transform 120ms ease; }
     .link-section-row.is-dragging { z-index: 20; opacity: 0.9; background: #e0f2fe; outline: 2px solid #0ea5e9; box-shadow: 0 12px 24px rgb(2 132 199 / 25%); transform: scale(1.015); }
     .dark .link-section-row.is-dragging { background: #0c4a6e; }
@@ -237,7 +238,7 @@
       <div id="route-search-container" class="hidden space-y-2.5">
         <div class="flex items-center justify-between">
           <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Route Endpoints (A → B)</label>
-          <button onclick="swapRouteEndpoints()" class="text-xs font-medium text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1">
+          <button id="swap-route-btn" onclick="swapRouteEndpoints()" class="text-xs font-medium text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed">
             ⇅ Swap Start & End
           </button>
         </div>
@@ -344,6 +345,7 @@
       </div>
 
       <div id="voice-search-status" class="hidden border-t border-slate-200 pt-2 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400" role="status" aria-live="polite"></div>
+      <div id="gps-status" class="hidden border-t border-slate-200 pt-2 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400" role="status" aria-live="polite"></div>
       <div id="search-results-dropdown" class="hidden pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1.5"></div>
 
       <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
@@ -406,8 +408,8 @@
             <div class="flex items-center justify-between text-[0.6875rem] font-semibold uppercase text-slate-400 mb-1">
               <span>Korean Road Address (도로명)</span>
               <div class="flex gap-1">
-                <button onclick="speakKorean(currentSpot.koAddress, this)" aria-label="Read Korean road address aloud" title="Read Korean road address aloud" aria-pressed="false" class="icon-action-button">🔊</button>
-                <button onclick="copyText(currentSpot.koAddress)" aria-label="Copy Korean road address" title="Copy Korean road address" class="icon-action-button">📋</button>
+                <button data-spot-address-action="ko" onclick="speakKorean(currentSpot.koAddress, this)" aria-label="Read Korean road address aloud" title="Read Korean road address aloud" aria-pressed="false" class="icon-action-button">🔊</button>
+                <button data-spot-address-action="ko" onclick="copyText(currentSpot.koAddress)" aria-label="Copy Korean road address" title="Copy Korean road address" class="icon-action-button">📋</button>
               </div>
             </div>
             <p id="spot-ko-addr" class="text-sm font-medium">서울특별시 중구 명동10길 29</p>
@@ -418,8 +420,8 @@
               <span>English Address & WGS84</span>
               <div class="flex items-center gap-1">
                 <span id="spot-coords" class="font-mono text-[0.6875rem]">37.5625, 126.9856</span>
-                <button onclick="speakEnglish(currentSpot.enAddress, this)" aria-label="Read English address aloud" title="Read English address aloud" aria-pressed="false" class="icon-action-button">🔊</button>
-                <button onclick="copyText(currentSpot.enAddress)" aria-label="Copy English address" title="Copy English address" class="icon-action-button">📋</button>
+                <button data-spot-address-action="en" onclick="speakEnglish(currentSpot.enAddress, this)" aria-label="Read English address aloud" title="Read English address aloud" aria-pressed="false" class="icon-action-button">🔊</button>
+                <button data-spot-address-action="en" onclick="copyText(currentSpot.enAddress)" aria-label="Copy English address" title="Copy English address" class="icon-action-button">📋</button>
               </div>
             </div>
             <p id="spot-en-addr" class="text-sm text-slate-600 dark:text-slate-300">29 Myeongdong 10-gil, Jung-gu, Seoul</p>
@@ -485,6 +487,7 @@
           OpenStreetMap
         </div>
       </div>
+      <p id="route-preview-status" class="hidden text-xs text-slate-500 dark:text-slate-400" role="status"></p>
 
       <!-- Launch Dock -->
       <div id="launch-dock" class="space-y-2 pt-1">
@@ -623,10 +626,11 @@
       <p class="text-xl text-amber-400 font-semibold">기사님, 여기로 가주세요</p>
       <h2 id="taxi-ko-name" class="text-4xl sm:text-6xl font-black tracking-tight leading-tight break-keep">명동교자 본점</h2>
       <p id="taxi-ko-addr" class="text-xl sm:text-2xl text-slate-300 font-medium break-keep">서울특별시 중구 명동10길 29</p>
+      <p id="taxi-coords" class="hidden text-base text-slate-300 font-mono"></p>
       
       <div class="pt-4 flex flex-wrap justify-center gap-3">
-        <button onclick="speakTaxiPhrase(this)" aria-label="Speak full taxi request in Korean" title="Speak full taxi request in Korean" aria-pressed="false" class="icon-action-button">🔊</button>
-        <button onclick="copyText(document.getElementById('taxi-ko-addr').innerText)" aria-label="Copy taxi destination address" title="Copy taxi destination address" class="icon-action-button">📋</button>
+        <button id="taxi-speak-address" onclick="speakTaxiPhrase(this)" aria-label="Speak full taxi request in Korean" title="Speak full taxi request in Korean" aria-pressed="false" class="icon-action-button">🔊</button>
+        <button id="taxi-copy-address" onclick="copyText(activeTaxiTarget.koAddress)" aria-label="Copy taxi destination address" title="Copy taxi destination address" class="icon-action-button">📋</button>
       </div>
       <div class="pt-3 flex flex-wrap justify-center gap-2">
         <button onclick="callTaxi('kakaot', activeTaxiTarget)" aria-label="Call a taxi with Kakao T" class="rounded-lg bg-[#FEE500] px-1.5 py-2 text-[0.6875rem] font-bold text-slate-950 flex items-center justify-center gap-1 shadow-sm transition hover:brightness-95">Kakao T</button>
@@ -885,6 +889,7 @@
     let lastGpsFix = null;
     let lastSearchCandidates = null;
     let lastSearchTargetSlot = null;
+    let searchSequence = 0;
 
     let appMode = 'spot';
     let searchProvider = localStorage.getItem('sudal_search_provider');
@@ -898,7 +903,7 @@
     let linkPreferencesDraft = null;
     let linkSectionDrag = null;
     let currentSpot = { ...PRESET_SPOTS[0] };
-    let routeStart = { isCurrentGps: true, enName: "Current GPS Location", koName: "현위치", enAddress: "Live GPS", koAddress: "현위치 (GPS)", lat: 37.554648, lng: 126.972559 };
+    let routeStart = createCurrentGpsStart();
     let routeEnd = { ...PRESET_SPOTS[1] };
     let activeTaxiTarget = currentSpot;
     let isOtterLogoVisible = false;
@@ -920,6 +925,22 @@
     ];
 
     let map, tileLayer, spotMarker, startMarker, endMarker, routeLine;
+
+    function createCurrentGpsStart(fix = null) {
+      return {
+        isCurrentGps: true,
+        enName: 'Current GPS Location',
+        koName: '현위치',
+        enAddress: fix ? `GPS (${fix.lat}, ${fix.lng})` : '',
+        koAddress: fix ? `현위치 (${fix.lat}, ${fix.lng})` : '',
+        lat: fix?.lat ?? null,
+        lng: fix?.lng ?? null
+      };
+    }
+
+    function hasCoordinates(place) {
+      return Number.isFinite(place?.lat) && Number.isFinite(place?.lng);
+    }
 
     function applyUiScale(percent) {
       document.documentElement.style.fontSize = `${percent}%`;
@@ -1183,20 +1204,31 @@
 
       map.on('click', (e) => {
         const { lat, lng } = e.latlng;
+        const pin = {
+          enName: 'Dropped pin',
+          koName: '지도에서 선택한 위치',
+          enAddress: '',
+          koAddress: '',
+          category: 'Dropped pin',
+          lat: Number(lat.toFixed(6)),
+          lng: Number(lng.toFixed(6))
+        };
         if (appMode === 'spot') {
-          currentSpot.lat = Number(lat.toFixed(6));
-          currentSpot.lng = Number(lng.toFixed(6));
-          renderActiveView();
-        } else {
-          routeEnd.lat = Number(lat.toFixed(6));
-          routeEnd.lng = Number(lng.toFixed(6));
-          renderActiveView();
+          dismissSearchResults();
+          currentSpot = pin;
+          document.getElementById('spot-input').value = pin.enName;
+        } else if (appMode === 'route') {
+          dismissSearchResults();
+          routeEnd = pin;
+          document.getElementById('route-end-input').value = pin.enName;
         }
+        renderActiveView();
       });
       renderActiveView();
     }
 
     function switchMode(mode, carryOver = true) {
+      if (mode !== appMode) dismissSearchResults();
       if (carryOver && mode === 'route' && appMode === 'spot') {
         routeEnd = { ...currentSpot };
         document.getElementById('route-end-input').value = `${routeEnd.enName} (${routeEnd.koName})`;
@@ -1236,30 +1268,46 @@
       if (startMarker) map.removeLayer(startMarker);
       if (endMarker) map.removeLayer(endMarker);
       if (routeLine) map.removeLayer(routeLine);
+      const routePreviewStatus = document.getElementById('route-preview-status');
+      routePreviewStatus.classList.toggle('hidden', appMode !== 'route');
 
       if (appMode === 'spot') {
         document.getElementById('spot-category').innerText = currentSpot.category || 'Destination';
         document.getElementById('spot-en-name').innerText = currentSpot.enName;
         document.getElementById('spot-ko-name').innerText = currentSpot.koName;
-        document.getElementById('spot-ko-addr').innerText = currentSpot.koAddress;
-        document.getElementById('spot-en-addr').innerText = currentSpot.enAddress;
+        document.getElementById('spot-ko-addr').innerText = currentSpot.koAddress || 'Address unavailable';
+        document.getElementById('spot-en-addr').innerText = currentSpot.enAddress || 'Address unavailable';
         document.getElementById('spot-coords').innerText = `${currentSpot.lat.toFixed(4)}, ${currentSpot.lng.toFixed(4)}`;
+        document.querySelectorAll('[data-spot-address-action]').forEach(button => {
+          button.disabled = !currentSpot[`${button.dataset.spotAddressAction}Address`];
+        });
 
         spotMarker = L.marker([currentSpot.lat, currentSpot.lng]).addTo(map).bindPopup(`<b>${currentSpot.koName}</b><br>${currentSpot.enName}`);
         map.setView([currentSpot.lat, currentSpot.lng], 15);
       } else if (appMode === 'route') {
         document.getElementById('route-start-en').innerText = routeStart.enName;
         document.getElementById('route-start-ko').innerText = routeStart.koName;
-        document.getElementById('route-start-addr').innerText = routeStart.koAddress;
+        document.getElementById('route-start-addr').innerText = routeStart.isCurrentGps && !hasCoordinates(routeStart)
+          ? 'GPS not located; map app will use current location'
+          : routeStart.koAddress || 'Address unavailable';
 
         document.getElementById('route-end-en').innerText = routeEnd.enName;
         document.getElementById('route-end-ko').innerText = routeEnd.koName;
-        document.getElementById('route-end-addr').innerText = routeEnd.koAddress;
+        document.getElementById('route-end-addr').innerText = routeEnd.koAddress || 'Address unavailable';
 
-        startMarker = L.circleMarker([routeStart.lat, routeStart.lng], { radius: 8, color: '#0ea5e9', fillColor: '#0ea5e9', fillOpacity: 0.9 }).addTo(map);
         endMarker = L.circleMarker([routeEnd.lat, routeEnd.lng], { radius: 8, color: '#f43f5e', fillColor: '#f43f5e', fillOpacity: 0.9 }).addTo(map);
-        routeLine = L.polyline([[routeStart.lat, routeStart.lng], [routeEnd.lat, routeEnd.lng]], { color: '#0ea5e9', weight: 3, dashArray: '6, 6' }).addTo(map);
-        map.fitBounds(routeLine.getBounds(), { padding: [35, 35] });
+        const startLocated = hasCoordinates(routeStart);
+        document.getElementById('swap-route-btn').disabled = !startLocated;
+        document.getElementById('swap-route-btn').title = startLocated ? 'Swap start and destination' : 'Locate the start before swapping';
+        if (startLocated) {
+          startMarker = L.circleMarker([routeStart.lat, routeStart.lng], { radius: 8, color: '#0ea5e9', fillColor: '#0ea5e9', fillOpacity: 0.9 }).addTo(map);
+          routeLine = L.polyline([[routeStart.lat, routeStart.lng], [routeEnd.lat, routeEnd.lng]], { color: '#0ea5e9', weight: 3, dashArray: '6, 6' }).addTo(map);
+          map.fitBounds(routeLine.getBounds(), { padding: [35, 35] });
+          routePreviewStatus.innerText = 'Straight-line preview, not a calculated route.';
+        } else {
+          map.setView([routeEnd.lat, routeEnd.lng], 15);
+          routePreviewStatus.innerText = 'Start location not yet available. Use GPS or select a start to preview both endpoints.';
+        }
       }
       renderFavoritesBar();
     }
@@ -1365,6 +1413,32 @@
       });
     }
 
+    function mapOsmResults(englishResults, koreanResults) {
+      const placeKey = item => item.osm_type && item.osm_id != null ? `${item.osm_type}:${item.osm_id}` : null;
+      const koreanByPlace = new Map(koreanResults.map(item => [placeKey(item), item]).filter(([key]) => key));
+      return englishResults.map(item => {
+        const korean = koreanByPlace.get(placeKey(item)) || item;
+        return {
+          enName: item.name || item.display_name.split(',')[0],
+          koName: korean.name || korean.display_name.split(',')[0],
+          enAddress: item.display_name,
+          koAddress: korean.display_name,
+          category: item.type || 'Place',
+          lat: parseFloat(item.lat),
+          lng: parseFloat(item.lon)
+        };
+      });
+    }
+
+    function dismissSearchResults() {
+      searchSequence++;
+      lastSearchCandidates = null;
+      lastSearchTargetSlot = null;
+      const dropdown = document.getElementById('search-results-dropdown');
+      dropdown.classList.add('hidden');
+      dropdown.innerHTML = '';
+    }
+
     async function runSearch(targetSlot) {
       const inputId = targetSlot === 'spot' ? 'spot-input' : (targetSlot === 'start' ? 'route-start-input' : 'route-end-input');
       const query = document.getElementById(inputId).value.trim();
@@ -1374,7 +1448,8 @@
       const googleKey = localStorage.getItem('sudal_google_key');
       const kakaoKey = localStorage.getItem('sudal_kakao_key');
       const selectedProvider = searchProvider;
-      lastSearchCandidates = null;
+      dismissSearchResults();
+      const requestSequence = searchSequence;
       ensureGpsFix();
       const providerNames = { google: 'Google Places', kakao: 'Kakao', osm: 'OpenStreetMap' };
       const dropdown = document.getElementById('search-results-dropdown');
@@ -1450,23 +1525,13 @@
             fetch(nomUrl + '&accept-language=en').then(r => r.json()),
             fetch(nomUrl + '&accept-language=ko').then(r => r.json())
           ]);
-          const osmMatches = resEn.map((item, idx) => {
-            const koItem = resKo[idx] || item;
-            return {
-              enName: item.name || item.display_name.split(',')[0],
-              koName: koItem.name || koItem.display_name.split(',')[0],
-              enAddress: item.display_name,
-              koAddress: koItem.display_name,
-              category: item.type || 'Place',
-              lat: parseFloat(item.lat),
-              lng: parseFloat(item.lon)
-            };
-          });
+          const osmMatches = mapOsmResults(resEn, resKo);
           candidates = [...localMatches, ...osmMatches].slice(0, 5);
         } else {
           throw new Error(`Unknown search provider: ${selectedProvider}`);
         }
 
+        if (requestSequence !== searchSequence) return;
         if (!candidates.length) {
           dropdown.innerHTML = '<div class="text-xs text-rose-500 py-2">No places found for this query.</div>';
           return;
@@ -1478,12 +1543,13 @@
         renderSearchResults();
 
       } catch (err) {
+        if (requestSequence !== searchSequence) return;
         dropdown.innerHTML = `<div class="text-xs text-rose-500 py-2">Search error: ${err.message}</div>`;
       }
     }
 
     function selectSearchResult(placeObj, targetSlot, keepResultsOpen = false) {
-      if (!keepResultsOpen) document.getElementById('search-results-dropdown').classList.add('hidden');
+      if (!keepResultsOpen) dismissSearchResults();
       if (targetSlot === 'spot') currentSpot = placeObj;
       else if (targetSlot === 'start') { routeStart = { ...placeObj, isCurrentGps: false }; document.getElementById('route-start-input').value = `${placeObj.enName} (${placeObj.koName})`; }
       else { routeEnd = placeObj; document.getElementById('route-end-input').value = `${placeObj.enName} (${placeObj.koName})`; }
@@ -1519,6 +1585,10 @@
       if (!navigator.geolocation) return;
       navigator.geolocation.getCurrentPosition(pos => {
         lastGpsFix = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        if (routeStart.isCurrentGps && !hasCoordinates(routeStart)) {
+          routeStart = createCurrentGpsStart(lastGpsFix);
+          if (appMode === 'route') renderActiveView();
+        }
         renderSearchResults();
       }, () => {}, { maximumAge: 300000, timeout: 10000 });
     }
@@ -1546,22 +1616,34 @@
     }
 
     function useCurrentGps(targetSlot) {
-      if (!navigator.geolocation) return;
+      const status = document.getElementById('gps-status');
+      status.classList.remove('hidden');
+      if (!navigator.geolocation) {
+        status.textContent = 'GPS is unavailable in this browser.';
+        return;
+      }
+      status.textContent = 'Finding your location...';
       navigator.geolocation.getCurrentPosition((pos) => {
         const lat = Number(pos.coords.latitude.toFixed(6));
         const lng = Number(pos.coords.longitude.toFixed(6));
         lastGpsFix = { lat, lng };
-        const gpsObj = { isCurrentGps: true, enName: "Current GPS Location", koName: "현위치", enAddress: `GPS (${lat}, ${lng})`, koAddress: `현위치 (${lat}, ${lng})`, lat, lng };
+        const gpsObj = createCurrentGpsStart(lastGpsFix);
+        dismissSearchResults();
         if (targetSlot === 'spot') currentSpot = gpsObj;
         else if (targetSlot === 'start') { routeStart = gpsObj; document.getElementById('route-start-input').value = "📍 Current GPS"; }
         else { routeEnd = gpsObj; document.getElementById('route-end-input').value = "📍 Current GPS"; }
+        status.textContent = 'GPS location found.';
         renderActiveView();
-      });
+      }, error => {
+        status.textContent = error.code === 1 ? 'Location permission was denied.' : 'Could not find your location. Try again or search for a place.';
+      }, { timeout: 10000 });
     }
 
     function swapRouteEndpoints() {
+      if (!hasCoordinates(routeStart)) return;
+      dismissSearchResults();
       const temp = { ...routeStart };
-      routeStart = { ...routeEnd, isCurrentGps: false };
+      routeStart = { ...routeEnd };
       routeEnd = temp;
       document.getElementById('route-start-input').value = `${routeStart.enName} (${routeStart.koName})`;
       document.getElementById('route-end-input').value = `${routeEnd.enName} (${routeEnd.koName})`;
@@ -1903,6 +1985,7 @@
         suppressSavedSpotClick = null;
         if (shouldSuppress) return;
       }
+      dismissSearchResults();
       currentSpot = { ...favoriteSpots[idx] };
       document.getElementById('spot-input').value = `${currentSpot.enName} (${currentSpot.koName})`;
       switchMode('spot', false);
@@ -1914,8 +1997,9 @@
         suppressSavedSpotClick = null;
         if (shouldSuppress) return;
       }
+      dismissSearchResults();
       const spot = favoriteSpots[idx];
-      if (appMode === 'spot') currentSpot = { ...spot };
+      if (appMode === 'spot') { currentSpot = { ...spot }; document.getElementById('spot-input').value = `${spot.enName} (${spot.koName})`; }
       else { routeEnd = { ...spot }; document.getElementById('route-end-input').value = `${spot.enName} (${spot.koName})`; }
       renderActiveView();
     }
@@ -1953,7 +2037,10 @@
     }
 
     function saveFavoriteSpot() {
-      if (!favoriteSpots.some(s => s.koName === currentSpot.koName)) {
+      const alreadySaved = favoriteSpots.some(spot => currentSpot.category === 'Dropped pin'
+        ? spot.category === 'Dropped pin' && spot.lat === currentSpot.lat && spot.lng === currentSpot.lng
+        : spot.koName === currentSpot.koName);
+      if (!alreadySaved) {
         favoriteSpots.unshift({ ...currentSpot });
         localStorage.setItem('sudal_fav_spots', JSON.stringify(favoriteSpots));
         renderFavoritesBar();
@@ -1994,9 +2081,10 @@
         suppressSavedRouteClick = null;
         if (shouldSuppress) return;
       }
+      dismissSearchResults();
       const rt = favoriteRoutes[idx];
       switchMode('route');
-      routeStart = { ...rt.start };
+      routeStart = rt.start.isCurrentGps ? createCurrentGpsStart(lastGpsFix) : { ...rt.start };
       routeEnd = { ...rt.end };
       document.getElementById('route-start-input').value = `${routeStart.enName} (${routeStart.koName})`;
       document.getElementById('route-end-input').value = `${routeEnd.enName} (${routeEnd.koName})`;
@@ -2080,8 +2168,13 @@
     function openTaxiModal(target) {
       activeTaxiTarget = target;
       document.getElementById('taxi-ko-name').innerText = target.koName;
-      document.getElementById('taxi-ko-addr').innerText = target.koAddress;
-      document.getElementById('taxi-en-sub').innerText = `English: ${target.enName} (${target.enAddress})`;
+      document.getElementById('taxi-ko-addr').innerText = target.koAddress || '주소 정보 없음';
+      const coordinates = document.getElementById('taxi-coords');
+      coordinates.innerText = `${target.lat.toFixed(6)}, ${target.lng.toFixed(6)}`;
+      coordinates.classList.toggle('hidden', Boolean(target.koAddress));
+      document.getElementById('taxi-speak-address').disabled = !target.koAddress;
+      document.getElementById('taxi-copy-address').disabled = !target.koAddress;
+      document.getElementById('taxi-en-sub').innerText = `English: ${target.enName}${target.enAddress ? ` (${target.enAddress})` : ' (Address unavailable)'}`;
       document.getElementById('taxi-modal').classList.remove('hidden');
     }
 
