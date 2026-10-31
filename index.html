@@ -47,6 +47,7 @@
     .link-section-row.drop-after::after { bottom: -5px; }
     .speech-active { animation: speech-active-pulse 1s ease-in-out infinite; }
     .mode-label-short { display: none; }
+    .mode-switcher button { white-space: nowrap; min-width: 0; }
     @keyframes speech-active-pulse { 50% { transform: scale(1.12); } }
     @media (prefers-reduced-motion: reduce) {
       .speech-active { animation: none; }
@@ -74,12 +75,16 @@
     @media (max-width: 520px) {
       header #target-btn { display: none; }
     }
+    @media (max-width: 360px) {
+      main .mode-switcher .mode-label-full,
+      main .mode-switcher .mode-label-short { display: none; }
+    }
     @media (max-width: 480px) {
       header .header-inner { padding-left: 0.25rem; padding-right: 0.25rem; }
       header .header-controls { min-width: 0; margin-left: 0; flex: 0 0 auto; }
       main.px-4 { padding-left: 0.25rem; padding-right: 0.25rem; }
       main > section.p-4.border { padding: 0.75rem 0.375rem; border-width: 0; }
-      main .mode-switcher { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.25rem; padding: 0.125rem; border-width: 0; }
+      main .mode-switcher { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.25rem; padding: 0.125rem; border-width: 0; }
       main .mode-switcher button { min-width: 0; padding-top: 0.5rem; padding-bottom: 0.5rem; gap: 0.25rem; font-size: 0.75rem; }
       main .mode-label-full { display: none; }
       main .mode-label-short { display: inline; }
@@ -106,6 +111,16 @@
       #route-search-container .route-search-actions { gap: 0.125rem; }
     }
     .route-search-actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+    .open-service-badge { display: inline-flex; width: 1.05rem; height: 1.05rem; align-items: center; justify-content: center; border-radius: 9999px; background: rgb(255 255 255 / 25%); font-size: 0.625rem; font-weight: 800; line-height: 1; }
+    .open-service-button.service-naver { background: #03C75A; color: #ffffff; }
+    .open-service-button.service-kakao { background: #FEE500; color: #3c1e1e; }
+    .open-service-button.service-kakao .open-service-badge { background: rgb(60 30 30 / 15%); }
+    .open-service-button.service-google { background: #4285F4; color: #ffffff; }
+    .open-service-button.service-visitkorea { background: #0ea5e9; color: #ffffff; }
+    .open-service-button.service-kakaot { background: #FEE500; color: #3c1e1e; }
+    .open-service-button.service-kakaot .open-service-badge { background: rgb(60 30 30 / 15%); }
+    .open-service-button.service-uber { background: #000000; color: #ffffff; }
+    .open-service-button.service-kride { background: #334155; color: #ffffff; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-200">
@@ -145,17 +160,20 @@
   <main class="max-w-3xl mx-auto px-4 py-4 space-y-4 pb-24">
 
     <!-- Mode Switcher -->
-    <div class="grid grid-cols-2 mode-switcher p-1 rounded-xl bg-slate-200/80 dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800">
+    <div class="grid grid-cols-3 mode-switcher p-1 rounded-xl bg-slate-200/80 dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800">
       <button id="mode-spot-btn" aria-label="Single Spot" onclick="switchMode('spot')" class="py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1.5">
         📍 <span class="mode-label-full">Single Spot</span><span class="mode-label-short" aria-hidden="true">Single</span>
       </button>
       <button id="mode-route-btn" aria-label="Route (A to B)" onclick="switchMode('route')" class="py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1.5">
         🔄 <span class="mode-label-full">Route (A → B)</span><span class="mode-label-short" aria-hidden="true">Route</span>
       </button>
+      <button id="mode-favorites-btn" aria-label="Favorites" onclick="switchMode('favorites')" class="py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1.5">
+        ⭐ <span class="mode-label-full">Favorites</span><span class="mode-label-short" aria-hidden="true">Fav</span>
+      </button>
     </div>
 
     <!-- Search Panel -->
-    <section class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 space-y-3">
+    <section id="search-panel" class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 space-y-3">
       <div id="voice-search-language-control" class="hidden items-center justify-end gap-2">
         <label for="voice-search-language" class="text-xs text-slate-500 dark:text-slate-400">Voice input</label>
         <select id="voice-search-language" class="rounded-lg border border-slate-300 bg-slate-100 px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-800">
@@ -336,6 +354,26 @@
     <!-- Details & Map Section -->
     <section class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 space-y-4">
       
+      <div id="favorites-view" class="hidden space-y-4">
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">📍 Saved Places</h3>
+            <span class="text-[0.6875rem] text-slate-400">Tap to open in Spot</span>
+          </div>
+          <div id="favorites-view-places" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+          <p id="favorites-view-places-empty" class="hidden rounded-xl bg-slate-100 p-3 text-center text-xs text-slate-500 dark:bg-slate-800">No saved places yet. Use ⭐ Save in Spot mode.</p>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">⭐ Saved Favorite Routes (A → B)</h3>
+            <span class="text-[0.6875rem] text-slate-400">Tap to open in Route</span>
+          </div>
+          <div id="favorites-view-routes" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+          <p id="favorites-view-routes-empty" class="hidden rounded-xl bg-slate-100 p-3 text-center text-xs text-slate-500 dark:bg-slate-800">No saved routes yet. Use ⭐ Save in Route mode.</p>
+        </div>
+      </div>
+
       <div id="spot-details-view" class="space-y-3">
         <div class="flex items-start justify-between gap-2 spot-summary-header">
           <div class="min-w-0">
@@ -353,6 +391,9 @@
           <div class="flex items-center gap-1.5 shrink-0 spot-summary-actions">
             <button onclick="saveFavoriteSpot()" id="fav-spot-btn" class="px-2.5 py-1.5 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-700 hover:border-amber-400 transition">
               ⭐ Save
+            </button>
+            <button id="spot-open-btn" type="button" onclick="openInSelectedService()" class="open-service-button flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-sm transition hover:brightness-95">
+              <span class="open-service-badge" aria-hidden="true"></span>Open
             </button>
             <button onclick="openTaxiModal(currentSpot)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-400 text-slate-950 hover:bg-amber-300 transition shadow-sm">
               🚕 Taxi Card
@@ -388,13 +429,16 @@
 
       <div id="route-details-view" class="hidden space-y-3">
         <div class="flex items-center justify-between route-details-header">
-          <span class="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">Active Route Plan (A → B)</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">Route</span>
           <div class="flex items-center gap-2 route-details-actions">
             <button onclick="saveFavoriteRoute()" class="px-2.5 py-1 rounded-lg text-xs font-semibold border border-slate-300 dark:border-slate-700 hover:border-amber-400 transition">
-              ⭐ Save Route
+              ⭐ Save
+            </button>
+            <button id="route-open-btn" type="button" onclick="openInSelectedService()" class="open-service-button flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm transition hover:brightness-95">
+              <span class="open-service-badge" aria-hidden="true"></span>Open
             </button>
             <button onclick="openTaxiModal(routeEnd)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-400 text-slate-950">
-              🚕 Taxi to B
+              🚕 Taxi Card
             </button>
           </div>
         </div>
@@ -429,7 +473,7 @@
       </div>
 
       <!-- Map -->
-      <div class="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div id="map-panel" class="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
         <select id="basemap-select" onchange="setBasemap(this.value)" aria-label="Map style" class="absolute top-2 right-2 z-20 max-w-[calc(100%-1rem)] rounded-md border border-slate-300 bg-white/95 px-2 py-1.5 text-xs font-medium text-slate-800 shadow dark:border-slate-700 dark:bg-slate-900/95 dark:text-slate-100">
           <option value="osm">OpenStreetMap</option>
           <option value="voyager">CARTO Voyager</option>
@@ -443,7 +487,7 @@
       </div>
 
       <!-- Launch Dock -->
-      <div class="space-y-2 pt-1">
+      <div id="launch-dock" class="space-y-2 pt-1">
         <div class="flex items-center justify-between">
           <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Open Directions</span>
           <div class="flex items-center gap-2">
@@ -532,6 +576,15 @@
               <button onclick="openVisitKorea('vicinity')" aria-label="VisitKorea nearby places" class="rounded-lg bg-sky-600 px-1.5 py-2 text-[0.6875rem] font-bold text-white flex items-center justify-center gap-1 shadow-sm transition hover:bg-sky-500"><svg class="h-4 w-4" aria-hidden="true"><use href="#mode-place"></use></svg>Nearby</button>
             </div>
           </div>
+
+          <div id="provider-taxi" class="rounded-xl border border-slate-400/40 bg-slate-500/5 p-2.5">
+            <div class="mb-2 text-[0.6875rem] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Taxi Apps</div>
+            <div class="grid grid-cols-3 gap-1.5">
+              <button onclick="callTaxi('kakaot')" aria-label="Call a taxi with Kakao T" class="rounded-lg bg-[#FEE500] px-1.5 py-2 text-[0.6875rem] font-bold text-slate-950 flex items-center justify-center gap-1 shadow-sm transition hover:brightness-95">Kakao T</button>
+              <button onclick="callTaxi('kride')" aria-label="Call a taxi with K Ride" class="rounded-lg bg-slate-700 px-1.5 py-2 text-[0.6875rem] font-bold text-white flex items-center justify-center gap-1 shadow-sm transition hover:brightness-110">K Ride</button>
+              <button onclick="callTaxi('uber')" aria-label="Call a taxi with Uber" class="rounded-lg bg-black px-1.5 py-2 text-[0.6875rem] font-bold text-white flex items-center justify-center gap-1 shadow-sm transition hover:brightness-95">Uber</button>
+            </div>
+          </div>
         </div>
 
         <p id="no-link-providers" class="hidden rounded-xl bg-slate-100 p-3 text-center text-xs text-slate-500 dark:bg-slate-800">All map sections are hidden. Choose which ones to show in Options.</p>
@@ -541,15 +594,6 @@
           </button>
         </div>
       </div>
-    </section>
-
-    <!-- Saved Favorite Routes -->
-    <section class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 space-y-2.5">
-      <div class="flex items-center justify-between">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">⭐ Saved Favorite Routes (A → B)</h3>
-        <span class="text-[0.6875rem] text-slate-400">One-tap load</span>
-      </div>
-      <div id="saved-routes-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
     </section>
 
   </main>
@@ -571,6 +615,11 @@
       <div class="pt-4 flex flex-wrap justify-center gap-3">
         <button onclick="speakTaxiPhrase(this)" aria-label="Speak full taxi request in Korean" title="Speak full taxi request in Korean" aria-pressed="false" class="icon-action-button">🔊</button>
         <button onclick="copyText(document.getElementById('taxi-ko-addr').innerText)" aria-label="Copy taxi destination address" title="Copy taxi destination address" class="icon-action-button">📋</button>
+      </div>
+      <div class="pt-3 flex flex-wrap justify-center gap-2">
+        <button onclick="callTaxi('kakaot', activeTaxiTarget)" aria-label="Call a taxi with Kakao T" class="rounded-lg bg-[#FEE500] px-1.5 py-2 text-[0.6875rem] font-bold text-slate-950 flex items-center justify-center gap-1 shadow-sm transition hover:brightness-95">Kakao T</button>
+        <button onclick="callTaxi('kride', activeTaxiTarget)" aria-label="Call a taxi with K Ride" class="rounded-lg bg-slate-700 px-1.5 py-2 text-[0.6875rem] font-bold text-white flex items-center justify-center gap-1 shadow-sm transition hover:brightness-110">K Ride</button>
+        <button onclick="callTaxi('uber', activeTaxiTarget)" aria-label="Call a taxi with Uber" class="rounded-lg bg-black px-1.5 py-2 text-[0.6875rem] font-bold text-white flex items-center justify-center gap-1 shadow-sm transition hover:brightness-95">Uber</button>
       </div>
     </div>
 
@@ -610,7 +659,7 @@
         <button onclick="closeOptionsModal()" aria-label="Close options" class="text-slate-400 hover:text-slate-200">✕</button>
       </div>
       <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-        Customize appearance, text size, link targets, and which map sections appear.
+        Customize appearance, text size, start screen, link targets, and which map sections appear.
       </p>
 
       <section class="space-y-3 border-t border-slate-200 pt-3 dark:border-slate-800">
@@ -642,6 +691,51 @@
           <button type="button" onclick="setLinkTarget('apps')" data-link-target-choice="apps" aria-pressed="false" class="px-3 py-1.5 rounded-md font-medium text-slate-500 transition">📱 Apps</button>
         </div>
         <p class="text-xs text-slate-500 dark:text-slate-400">Choose whether supported map links open in the browser or installed apps.</p>
+      </section>
+
+      <section class="space-y-3 border-t border-slate-200 pt-3 dark:border-slate-800">
+        <h4 class="text-[0.6875rem] font-bold uppercase tracking-wider text-slate-400">Distance &amp; Open Button</h4>
+        <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <div class="space-y-1">
+            <label for="distance-units-select" class="block text-xs text-slate-500 dark:text-slate-400">Distance units</label>
+            <select id="distance-units-select" class="w-full rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800">
+              <option value="metric">km / m</option>
+              <option value="imperial">mi / ft</option>
+            </select>
+          </div>
+          <div class="space-y-1">
+            <label for="open-service-select" class="block text-xs text-slate-500 dark:text-slate-400">Open button service</label>
+            <select id="open-service-select" onchange="updateOpenTravelModeState()" class="w-full rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800">
+              <option value="naver">Naver Maps</option>
+              <option value="kakao">Kakao Map</option>
+              <option value="google">Google Maps</option>
+              <option value="visitkorea">VisitKorea Map</option>
+              <option value="kakaot">Kakao T (taxi)</option>
+              <option value="kride">K Ride (taxi)</option>
+              <option value="uber">Uber (taxi)</option>
+            </select>
+          </div>
+          <div class="space-y-1">
+            <label for="open-travel-select" class="block text-xs text-slate-500 dark:text-slate-400">Route travel mode</label>
+            <select id="open-travel-select" class="w-full rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800">
+              <option value="car">🚗 Car</option>
+              <option value="bicycle">🚲 Bicycle</option>
+              <option value="foot">🚶 Foot</option>
+              <option value="transit">🚌 Transit</option>
+            </select>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Distances in search results are measured from your current GPS location. The Open button uses the selected service; VisitKorea and taxi services ignore the travel mode.</p>
+      </section>
+
+      <section class="space-y-2 border-t border-slate-200 pt-3 dark:border-slate-800">
+        <h4 class="text-[0.6875rem] font-bold uppercase tracking-wider text-slate-400">Start Screen</h4>
+        <div class="inline-flex rounded-lg p-0.5 bg-slate-200/80 dark:bg-slate-800 text-xs" role="group" aria-label="Start screen">
+          <button type="button" onclick="setStartModeDraft('spot')" data-start-mode-choice="spot" aria-pressed="false" class="px-3 py-1.5 rounded-md font-medium text-slate-500 transition">📍 Spot</button>
+          <button type="button" onclick="setStartModeDraft('route')" data-start-mode-choice="route" aria-pressed="false" class="px-3 py-1.5 rounded-md font-medium text-slate-500 transition">🔄 Route</button>
+          <button type="button" onclick="setStartModeDraft('favorites')" data-start-mode-choice="favorites" aria-pressed="false" class="px-3 py-1.5 rounded-md font-medium text-slate-500 transition">⭐ Favorites</button>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Choose which screen opens when the app starts.</p>
       </section>
 
       <section class="space-y-2 border-t border-slate-200 pt-3 dark:border-slate-800">
@@ -727,13 +821,56 @@
       { id: 'naver', label: 'Naver Maps' },
       { id: 'kakao', label: 'Kakao Maps' },
       { id: 'google', label: 'Google Maps' },
-      { id: 'visitkorea', label: 'VisitKorea' }
+      { id: 'visitkorea', label: 'VisitKorea' },
+      { id: 'taxi', label: 'Taxi Apps' }
     ];
     const UI_SCALE_LEVELS = [100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200];
     const FAVORITE_SCROLL_THRESHOLDS = ['10', '20', '30', '50', 'never'];
     const SEARCH_PROVIDERS = ['google', 'kakao', 'osm'];
     const SEARCH_PROVIDER_LABELS = { google: 'Google', kakao: 'Kakao', osm: 'OSM' };
     const SEARCH_PROVIDER_ICONS = { google: 'mode-place', kakao: 'mode-chat', osm: 'mode-map' };
+
+    const DISTANCE_UNITS = ['metric', 'imperial'];
+    const OPEN_SERVICES = {
+      naver: { label: 'Naver Maps', badge: 'N' },
+      kakao: { label: 'Kakao Map', badge: 'K' },
+      google: { label: 'Google Maps', badge: 'G' },
+      visitkorea: { label: 'VisitKorea Map', badge: 'VK' },
+      kakaot: { label: 'Kakao T', badge: 'T' },
+      kride: { label: 'K Ride', badge: 'K' },
+      uber: { label: 'Uber', badge: 'U' }
+    };
+    const OPEN_TRAVEL_MODES = ['car', 'bicycle', 'foot', 'transit'];
+    const NAVER_ROUTE_MODES = { car: 'car', bicycle: 'bicycle', foot: 'walk', transit: 'public' };
+    const KAKAO_ROUTE_MODES = { car: 'CAR', bicycle: 'BICYCLE', foot: 'FOOT', transit: 'PUBLICTRANSIT' };
+    const GOOGLE_ROUTE_MODES = { car: 'driving', bicycle: 'bicycling', foot: 'walking', transit: 'transit' };
+    const TAXI_SERVICE_IDS = ['kakaot', 'kride', 'uber'];
+    const TAXI_APPS = {
+      kakaot: { // Scheme from Kakao's launch page; no destination parameters are known.
+        androidAppUrl: 'kakaot://taxi',
+        iosAppUrl: 'kakaot://taxi',
+        androidStoreUrl: 'https://play.google.com/store/apps/details?id=com.kakao.taxi',
+        iosStoreUrl: 'https://apps.apple.com/app/id981110422',
+        webUrl: 'https://service.kakaomobility.com/launch/kakaot/?type=taxi'
+      },
+      kride: { // No iOS scheme is known, so iOS opens the App Store page.
+        androidAppUrl: 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.kakaomobility.kride;end',
+        iosAppUrl: 'https://apps.apple.com/app/id6474654222',
+        androidStoreUrl: 'https://play.google.com/store/apps/details?id=com.kakaomobility.kride',
+        iosStoreUrl: 'https://apps.apple.com/app/id6474654222',
+        webUrl: 'https://kride.kakaomobility.com/?lang=en'
+      }
+    };
+
+    const storedDistanceUnits = localStorage.getItem('sudal_distance_units');
+    let distanceUnits = DISTANCE_UNITS.includes(storedDistanceUnits) ? storedDistanceUnits : 'metric';
+    const storedOpenService = localStorage.getItem('sudal_open_service');
+    let openService = Object.keys(OPEN_SERVICES).includes(storedOpenService) ? storedOpenService : 'naver';
+    const storedOpenTravelMode = localStorage.getItem('sudal_open_travel_mode');
+    let openTravelMode = OPEN_TRAVEL_MODES.includes(storedOpenTravelMode) ? storedOpenTravelMode : 'transit';
+    let lastGpsFix = null;
+    let lastSearchCandidates = null;
+    let lastSearchTargetSlot = null;
 
     let appMode = 'spot';
     let searchProvider = localStorage.getItem('sudal_search_provider');
@@ -758,6 +895,10 @@
     let suppressSavedRouteClick = null;
     const savedSpotScrollThreshold = localStorage.getItem('sudal_favorite_scroll_threshold');
     let favoriteScrollThreshold = FAVORITE_SCROLL_THRESHOLDS.includes(savedSpotScrollThreshold) ? savedSpotScrollThreshold : '20';
+    const START_MODES = ['spot', 'route', 'favorites'];
+    const savedStartMode = localStorage.getItem('sudal_start_mode');
+    let startMode = START_MODES.includes(savedStartMode) ? savedStartMode : 'spot';
+    let startModeDraft = null;
 
     let favoriteSpots = JSON.parse(localStorage.getItem('sudal_fav_spots') || 'null') || PRESET_SPOTS;
     let favoriteRoutes = JSON.parse(localStorage.getItem('sudal_fav_routes') || 'null') || [
@@ -1041,23 +1182,38 @@
       renderActiveView();
     }
 
-    function switchMode(mode) {
-      if (mode === 'route' && appMode === 'spot') {
+    function switchMode(mode, carryOver = true) {
+      if (carryOver && mode === 'route' && appMode === 'spot') {
         routeEnd = { ...currentSpot };
         document.getElementById('route-end-input').value = `${routeEnd.enName} (${routeEnd.koName})`;
-      } else if (mode === 'spot' && appMode === 'route') {
+      } else if (carryOver && mode === 'spot' && appMode === 'route') {
         currentSpot = { ...routeEnd };
         document.getElementById('spot-input').value = `${currentSpot.enName} (${currentSpot.koName})`;
       }
       appMode = mode;
       const isSpot = mode === 'spot';
+      const isRoute = mode === 'route';
+      const isFavorites = mode === 'favorites';
+      document.getElementById('search-panel').classList.toggle('hidden', isFavorites);
       document.getElementById('spot-search-container').classList.toggle('hidden', !isSpot);
-      document.getElementById('route-search-container').classList.toggle('hidden', isSpot);
+      document.getElementById('route-search-container').classList.toggle('hidden', !isRoute);
       document.getElementById('spot-details-view').classList.toggle('hidden', !isSpot);
-      document.getElementById('route-details-view').classList.toggle('hidden', isSpot);
+      document.getElementById('route-details-view').classList.toggle('hidden', !isRoute);
+      document.getElementById('favorites-view').classList.toggle('hidden', !isFavorites);
+      document.getElementById('map-panel').classList.toggle('hidden', isFavorites);
+      document.getElementById('launch-dock').classList.toggle('hidden', isFavorites);
 
-      document.getElementById('mode-spot-btn').className = isSpot ? 'py-2 rounded-lg text-sm font-bold bg-white dark:bg-slate-800 shadow-sm text-sky-600 dark:text-sky-400 transition flex items-center justify-center gap-1.5' : 'py-2 rounded-lg text-sm font-medium text-slate-500 transition flex items-center justify-center gap-1.5';
-      document.getElementById('mode-route-btn').className = !isSpot ? 'py-2 rounded-lg text-sm font-bold bg-white dark:bg-slate-800 shadow-sm text-sky-600 dark:text-sky-400 transition flex items-center justify-center gap-1.5' : 'py-2 rounded-lg text-sm font-medium text-slate-500 transition flex items-center justify-center gap-1.5';
+      const activeModeClass = 'py-2 rounded-lg text-sm font-bold bg-white dark:bg-slate-800 shadow-sm text-sky-600 dark:text-sky-400 transition flex items-center justify-center gap-1.5';
+      const inactiveModeClass = 'py-2 rounded-lg text-sm font-medium text-slate-500 transition flex items-center justify-center gap-1.5';
+      document.getElementById('mode-spot-btn').className = isSpot ? activeModeClass : inactiveModeClass;
+      document.getElementById('mode-route-btn').className = isRoute ? activeModeClass : inactiveModeClass;
+      document.getElementById('mode-favorites-btn').className = isFavorites ? activeModeClass : inactiveModeClass;
+
+      if (isFavorites) {
+        renderFavoritesView();
+      } else {
+        map.invalidateSize();
+      }
       renderActiveView();
     }
 
@@ -1077,7 +1233,7 @@
 
         spotMarker = L.marker([currentSpot.lat, currentSpot.lng]).addTo(map).bindPopup(`<b>${currentSpot.koName}</b><br>${currentSpot.enName}`);
         map.setView([currentSpot.lat, currentSpot.lng], 15);
-      } else {
+      } else if (appMode === 'route') {
         document.getElementById('route-start-en').innerText = routeStart.enName;
         document.getElementById('route-start-ko').innerText = routeStart.koName;
         document.getElementById('route-start-addr').innerText = routeStart.koAddress;
@@ -1092,7 +1248,6 @@
         map.fitBounds(routeLine.getBounds(), { padding: [35, 35] });
       }
       renderFavoritesBar();
-      renderSavedRoutes();
     }
 
     let activeSpeech = null;
@@ -1205,6 +1360,8 @@
       const googleKey = localStorage.getItem('sudal_google_key');
       const kakaoKey = localStorage.getItem('sudal_kakao_key');
       const selectedProvider = searchProvider;
+      lastSearchCandidates = null;
+      ensureGpsFix();
       const providerNames = { google: 'Google Places', kakao: 'Kakao', osm: 'OpenStreetMap' };
       const dropdown = document.getElementById('search-results-dropdown');
       dropdown.classList.remove('hidden');
@@ -1302,17 +1459,9 @@
         }
 
         selectSearchResult(candidates[0], targetSlot, true);
-        dropdown.innerHTML = candidates.map((c, index) => `
-          <button onclick='selectSearchResult(${JSON.stringify(c).replace(/'/g, "&#39;")}, "${targetSlot}")'
-            aria-pressed="${index === 0}"
-            class="w-full text-left p-2.5 rounded-xl ${index === 0 ? 'bg-sky-500/10 ring-1 ring-sky-500/30' : 'hover:bg-slate-100 dark:hover:bg-slate-800'} flex items-center justify-between gap-2 transition">
-            <div class="min-w-0">
-              <div class="font-bold text-sm truncate">${c.enName} <span class="text-sky-600 dark:text-sky-400 font-semibold">· ${c.koName}</span></div>
-              <div class="text-xs text-slate-500 truncate">${c.koAddress}</div>
-            </div>
-            <span class="text-xs font-semibold px-2 py-1 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 shrink-0">${index === 0 ? 'Selected' : 'Select'}</span>
-          </button>
-        `).join('');
+        lastSearchCandidates = candidates;
+        lastSearchTargetSlot = targetSlot;
+        renderSearchResults();
 
       } catch (err) {
         dropdown.innerHTML = `<div class="text-xs text-rose-500 py-2">Search error: ${err.message}</div>`;
@@ -1334,11 +1483,60 @@
       });
     });
 
+    function distanceKm(from, to) {
+      const toRadians = degrees => degrees * Math.PI / 180;
+      const dLat = toRadians(to.lat - from.lat);
+      const dLng = toRadians(to.lng - from.lng);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRadians(from.lat)) * Math.cos(toRadians(to.lat)) * Math.sin(dLng / 2) ** 2;
+      return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function formatDistance(km, units) {
+      if (units === 'imperial') {
+        const miles = km / 1.609344;
+        if (miles < 0.1) return `≈ ${Math.round(miles * 5280)} ft`;
+        return `≈ ${miles < 10 ? miles.toFixed(1) : Math.round(miles)} mi`;
+      }
+      if (km < 1) return `≈ ${Math.round(km * 1000)} m`;
+      return `≈ ${km < 10 ? km.toFixed(1) : Math.round(km)} km`;
+    }
+
+    function ensureGpsFix() {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(pos => {
+        lastGpsFix = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        renderSearchResults();
+      }, () => {}, { maximumAge: 300000, timeout: 10000 });
+    }
+
+    function renderSearchResults() {
+      const dropdown = document.getElementById('search-results-dropdown');
+      if (!lastSearchCandidates || dropdown.classList.contains('hidden')) return;
+      dropdown.innerHTML = lastSearchCandidates.map((c, index) => {
+        const distance = lastGpsFix ? formatDistance(distanceKm(lastGpsFix, c), distanceUnits) : '';
+        return `
+          <button onclick='selectSearchResult(${JSON.stringify(c).replace(/'/g, "&#39;")}, "${lastSearchTargetSlot}")'
+            aria-pressed="${index === 0}"
+            class="w-full text-left p-2.5 rounded-xl ${index === 0 ? 'bg-sky-500/10 ring-1 ring-sky-500/30' : 'hover:bg-slate-100 dark:hover:bg-slate-800'} flex items-center justify-between gap-2 transition">
+            <div class="min-w-0">
+              <div class="font-bold text-sm truncate">${c.enName} <span class="text-sky-600 dark:text-sky-400 font-semibold">· ${c.koName}</span></div>
+              <div class="text-xs text-slate-500 truncate">${c.koAddress}</div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              ${distance ? `<span class="text-xs font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">${distance}</span>` : ''}
+              <span class="text-xs font-semibold px-2 py-1 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400">${index === 0 ? 'Selected' : 'Select'}</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
     function useCurrentGps(targetSlot) {
       if (!navigator.geolocation) return;
       navigator.geolocation.getCurrentPosition((pos) => {
         const lat = Number(pos.coords.latitude.toFixed(6));
         const lng = Number(pos.coords.longitude.toFixed(6));
+        lastGpsFix = { lat, lng };
         const gpsObj = { isCurrentGps: true, enName: "Current GPS Location", koName: "현위치", enAddress: `GPS (${lat}, ${lng})`, koAddress: `현위치 (${lat}, ${lng})`, lat, lng };
         if (targetSlot === 'spot') currentSpot = gpsObj;
         else if (targetSlot === 'start') { routeStart = gpsObj; document.getElementById('route-start-input').value = "📍 Current GPS"; }
@@ -1370,8 +1568,8 @@
         : `${window.location.origin}${window.location.pathname}`;
     }
 
-    function openMapLink(appUrl, webUrl) {
-      if (!useMobileAppSchemes) {
+    function openMapLink(appUrl, webUrl, preferApp = useMobileAppSchemes) {
+      if (!preferApp) {
         window.open(webUrl, '_blank', 'noopener,noreferrer');
         return;
       }
@@ -1474,6 +1672,28 @@
       window.open(pages[mode], '_blank', 'noopener,noreferrer');
     }
 
+    function applyOpenButtonStyle() {
+      const service = OPEN_SERVICES[openService];
+      ['spot-open-btn', 'route-open-btn'].forEach(id => {
+        const button = document.getElementById(id);
+        Object.keys(OPEN_SERVICES).forEach(key => button.classList.remove(`service-${key}`));
+        button.classList.add(`service-${openService}`);
+        button.querySelector('.open-service-badge').textContent = service.badge;
+        button.title = `Open in ${service.label}`;
+        button.setAttribute('aria-label', `Open in ${service.label}`);
+      });
+    }
+
+    function openInSelectedService() {
+      const isRoute = appMode === 'route';
+      if (openService === 'naver') return isRoute ? launchNaver(NAVER_ROUTE_MODES[openTravelMode]) : openNaverSpot();
+      if (openService === 'kakao') return isRoute ? launchKakao(KAKAO_ROUTE_MODES[openTravelMode]) : openKakaoSpot();
+      if (openService === 'google') return isRoute ? launchGoogle(GOOGLE_ROUTE_MODES[openTravelMode]) : openGoogleSpot();
+      if (openService === 'visitkorea') return openVisitKorea(isRoute ? 'route' : 'spot');
+      if (TAXI_SERVICE_IDS.includes(openService)) return callTaxi(openService);
+      throw new Error(`Unknown open service: ${openService}`);
+    }
+
     function launchNaver(mode) {
       const dest = getActiveDestination();
       const appUrl = new URL(`nmap://route/${mode}`);
@@ -1512,6 +1732,55 @@
       const webUrl = new URL(webPath, 'https://map.kakao.com');
       webUrl.searchParams.set('lang', linkLanguage);
       openMapLink(appUrl.toString(), webUrl.toString());
+    }
+
+    function isMobileDevice() {
+      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    }
+
+    function appendUberLocation(params, key, place) {
+      params.set(`${key}[latitude]`, place.lat);
+      params.set(`${key}[longitude]`, place.lng);
+      params.set(`${key}[nickname]`, place.koName);
+      params.set(`${key}[formatted_address]`, place.koAddress);
+    }
+
+    function createUberAppUrl(pickup, dest) {
+      const url = new URL('uber://');
+      url.searchParams.set('action', 'setPickup');
+      if (pickup) appendUberLocation(url.searchParams, 'pickup', pickup);
+      else url.searchParams.set('pickup', 'my_location');
+      appendUberLocation(url.searchParams, 'dropoff', dest);
+      return url.toString();
+    }
+
+    function createUberWebUrl(pickup, dest) {
+      const toLocation = place => JSON.stringify({ latitude: place.lat, longitude: place.lng, addressLine1: place.koName, addressLine2: place.koAddress });
+      const url = new URL('https://m.uber.com/looking');
+      if (pickup) url.searchParams.set('pickup', toLocation(pickup));
+      url.searchParams.set('drop[0]', toLocation(dest));
+      return url.toString();
+    }
+
+    function callTaxi(service, dest = getActiveDestination()) {
+      const pickup = appMode === 'route' && !routeStart.isCurrentGps ? routeStart : null;
+      if (service === 'uber') {
+        openMapLink(createUberAppUrl(pickup, dest), createUberWebUrl(pickup, dest), isMobileDevice());
+        return;
+      }
+      const taxi = TAXI_APPS[service];
+      if (!taxi) throw new Error(`Unknown taxi service: ${service}`);
+      const mobile = isMobileDevice();
+      const ios = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const storeUrl = ios ? taxi.iosStoreUrl : taxi.androidStoreUrl;
+      openMapLink(ios ? taxi.iosAppUrl : taxi.androidAppUrl, mobile ? storeUrl : taxi.webUrl, mobile);
+    }
+
+    function updateOpenTravelModeState() {
+      const isTaxi = TAXI_SERVICE_IDS.includes(document.getElementById('open-service-select').value);
+      const select = document.getElementById('open-travel-select');
+      select.disabled = isTaxi;
+      select.parentElement.classList.toggle('opacity-50', isTaxi);
     }
 
     function launchGoogle(mode) {
@@ -1564,6 +1833,35 @@
           <button onclick="deleteFavoriteSpot(${idx})" aria-label="Delete saved place ${label}" title="Delete saved place" class="shrink-0 rounded-r-lg px-1.5 py-1 text-xs text-slate-400 hover:text-rose-500">✕</button>
         </div>`;
       }).join('');
+      renderFavoritesView();
+    }
+
+    function renderFavoritesView() {
+      document.getElementById('favorites-view-places').innerHTML = favoriteSpots.map((spot, idx) => {
+        const label = escapeHtml(spot.savedName || getFavoriteSpotDefaultName(spot));
+        const description = escapeHtml(spot.enAddress);
+        return `
+        <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
+          <button onclick="openFavoriteSpotInSpotMode(${idx})" ondblclick="cancelSavedSpotHold(); renameFavoriteSpot(${idx})" onpointerdown="startSavedSpotHold(event, ${idx})" onpointerup="cancelSavedSpotHold()" onpointerleave="cancelSavedSpotHold()" onpointercancel="cancelSavedSpotHold()" oncontextmenu="event.preventDefault()" aria-label="Open saved place ${label}; double-click or press and hold to rename" title="Tap to open. Double-click or press and hold to rename." class="text-left min-w-0 flex-1">
+            <div class="text-xs font-bold truncate">📍 ${label}</div>
+            <div class="text-[0.6875rem] text-slate-500 truncate">${description}</div>
+          </button>
+          <button onclick="deleteFavoriteSpot(${idx})" aria-label="Delete saved place ${label}" title="Delete saved place" class="text-xs text-slate-400 hover:text-rose-500 px-1.5">✕</button>
+        </div>`;
+      }).join('');
+      document.getElementById('favorites-view-places-empty').classList.toggle('hidden', favoriteSpots.length > 0);
+      renderSavedRoutes();
+    }
+
+    function openFavoriteSpotInSpotMode(idx) {
+      if (suppressSavedSpotClick !== null) {
+        const shouldSuppress = idx === suppressSavedSpotClick;
+        suppressSavedSpotClick = null;
+        if (shouldSuppress) return;
+      }
+      currentSpot = { ...favoriteSpots[idx] };
+      document.getElementById('spot-input').value = `${currentSpot.enName} (${currentSpot.koName})`;
+      switchMode('spot', false);
     }
 
     function loadFavoriteSpot(idx) {
@@ -1625,7 +1923,7 @@
     }
 
     function renderSavedRoutes() {
-      document.getElementById('saved-routes-list').innerHTML = favoriteRoutes.map((rt, idx) => {
+      document.getElementById('favorites-view-routes').innerHTML = favoriteRoutes.map((rt, idx) => {
         const label = escapeHtml(rt.savedName || `${rt.start.koName} → ${rt.end.koName}`);
         const routeDescription = escapeHtml(`${rt.start.enName} → ${rt.end.enName}`);
         return `
@@ -1637,6 +1935,7 @@
           <button onclick="deleteFavoriteRoute(${idx})" aria-label="Delete saved route" class="text-xs text-slate-400 hover:text-rose-500 px-1.5">✕</button>
         </div>`;
       }).join('');
+      document.getElementById('favorites-view-routes-empty').classList.toggle('hidden', favoriteRoutes.length > 0);
     }
 
     function saveFavoriteRoute() {
@@ -1919,11 +2218,17 @@
       document.getElementById('api-key-kakao').value = localStorage.getItem('sudal_kakao_key') || '';
       document.getElementById('api-key-carto').value = localStorage.getItem('sudal_carto_key') || '';
       document.getElementById('favorite-scroll-threshold').value = favoriteScrollThreshold;
+      document.getElementById('distance-units-select').value = distanceUnits;
+      document.getElementById('open-service-select').value = openService;
+      document.getElementById('open-travel-select').value = openTravelMode;
+      updateOpenTravelModeState();
       ['google', 'kakao', 'carto'].forEach(provider => {
         document.getElementById(`api-key-${provider}`).dataset.clearSaved = 'false';
       });
       linkPreferencesDraft = linkPreferences.map(preference => ({ ...preference }));
       renderLinkPreferences();
+      startModeDraft = startMode;
+      renderStartModeChoices();
       document.getElementById('options-modal').classList.remove('hidden');
       if (provider) document.getElementById(`api-key-${provider}`).focus();
     }
@@ -1937,6 +2242,22 @@
     function closeOptionsModal() {
       document.getElementById('options-modal').classList.add('hidden');
       linkPreferencesDraft = null;
+      startModeDraft = null;
+    }
+
+    function setStartModeDraft(mode) {
+      startModeDraft = START_MODES.includes(mode) ? mode : 'spot';
+      renderStartModeChoices();
+    }
+
+    function renderStartModeChoices() {
+      document.querySelectorAll('[data-start-mode-choice]').forEach(button => {
+        const isSelected = button.dataset.startModeChoice === startModeDraft;
+        button.className = isSelected
+          ? 'px-3 py-1.5 rounded-md font-bold bg-white dark:bg-slate-700 shadow-sm transition'
+          : 'px-3 py-1.5 rounded-md font-medium text-slate-500 transition';
+        button.setAttribute('aria-pressed', String(isSelected));
+      });
     }
 
     function saveOptions() {
@@ -1946,6 +2267,18 @@
       localStorage.setItem('sudal_link_sections', JSON.stringify(linkPreferences));
       favoriteScrollThreshold = document.getElementById('favorite-scroll-threshold').value;
       localStorage.setItem('sudal_favorite_scroll_threshold', favoriteScrollThreshold);
+      distanceUnits = document.getElementById('distance-units-select').value;
+      localStorage.setItem('sudal_distance_units', distanceUnits);
+      openService = document.getElementById('open-service-select').value;
+      localStorage.setItem('sudal_open_service', openService);
+      openTravelMode = document.getElementById('open-travel-select').value;
+      localStorage.setItem('sudal_open_travel_mode', openTravelMode);
+      applyOpenButtonStyle();
+      renderSearchResults();
+      if (startModeDraft) {
+        startMode = startModeDraft;
+        localStorage.setItem('sudal_start_mode', startMode);
+      }
       renderFavoritesBar();
       applyLinkPreferences();
       closeOptionsModal();
@@ -1963,10 +2296,11 @@
       document.getElementById('link-language-select').value = linkLanguage;
       updateLaunchModeIndicator();
       applyLinkPreferences();
+      appMode = startMode;
+      applyOpenButtonStyle();
       renderFavoritesBar();
-      renderSavedRoutes();
       initMap();
-      switchMode('spot');
+      switchMode(startMode, false);
       if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('./sw.js').catch((error) => console.error('Service worker registration failed:', error));

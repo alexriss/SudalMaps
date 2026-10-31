@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'sudal-shell-v2';
+const SHELL_CACHE = 'sudal-shell-v5';
 const CDN_CACHE = 'sudal-cdn-v1';
 const SHELL_FILES = [
   './',
