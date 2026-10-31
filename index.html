@@ -585,14 +585,26 @@
               <button onclick="callTaxi('uber')" aria-label="Call a taxi with Uber" class="rounded-lg bg-black px-1.5 py-2 text-[0.6875rem] font-bold text-white flex items-center justify-center gap-1 shadow-sm transition hover:brightness-95">Uber</button>
             </div>
           </div>
+
+          <div id="provider-reviews" class="rounded-xl border border-rose-500/30 bg-rose-500/5 p-2.5">
+            <div class="mb-2 text-[0.6875rem] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">Reviews & Booking</div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+              <button onclick="openNaverTranslatedPlace()" aria-label="Menus and reviews on Naver Place" class="rounded-lg bg-slate-800 dark:bg-slate-700 px-1.5 py-2 text-[0.6875rem] font-bold text-white flex items-center justify-center gap-1 shadow-sm transition hover:brightness-110">📖 Menus & Reviews</button>
+              <button onclick="openDiningCodeSearch()" aria-label="Search for this place on DiningCode" class="rounded-lg bg-rose-600 px-1.5 py-2 text-[0.6875rem] font-bold text-white flex items-center justify-center gap-1 shadow-sm transition hover:bg-rose-500">DiningCode</button>
+              <button onclick="openCatchTable()" aria-label="Open Catch Table for reservations" class="rounded-lg bg-rose-600 px-1.5 py-2 text-[0.6875rem] font-bold text-white flex items-center justify-center gap-1 shadow-sm transition hover:bg-rose-500">Catch Table</button>
+            </div>
+          </div>
+
+          <div id="provider-translate" class="rounded-xl border border-violet-500/30 bg-violet-500/5 p-2.5">
+            <div class="mb-2 text-[0.6875rem] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">Translate</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="openPapago()" aria-label="Translate place name with Papago" class="rounded-lg bg-violet-600 px-1.5 py-2 text-[0.6875rem] font-bold text-white flex items-center justify-center gap-1 shadow-sm transition hover:bg-violet-500">Papago</button>
+              <button onclick="openGoogleTranslate()" aria-label="Translate place name with Google Translate" class="rounded-lg bg-violet-600 px-1.5 py-2 text-[0.6875rem] font-bold text-white flex items-center justify-center gap-1 shadow-sm transition hover:bg-violet-500">Google Translate</button>
+            </div>
+          </div>
         </div>
 
         <p id="no-link-providers" class="hidden rounded-xl bg-slate-100 p-3 text-center text-xs text-slate-500 dark:bg-slate-800">All map sections are hidden. Choose which ones to show in Options.</p>
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="openNaverTranslatedPlace()" class="p-2.5 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm transition">
-            📖 Menus & Reviews
-          </button>
-        </div>
       </div>
     </section>
 
@@ -822,7 +834,9 @@
       { id: 'kakao', label: 'Kakao Maps' },
       { id: 'google', label: 'Google Maps' },
       { id: 'visitkorea', label: 'VisitKorea' },
-      { id: 'taxi', label: 'Taxi Apps' }
+      { id: 'taxi', label: 'Taxi Apps' },
+      { id: 'reviews', label: 'Reviews & Booking' },
+      { id: 'translate', label: 'Translate' }
     ];
     const UI_SCALE_LEVELS = [100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200];
     const FAVORITE_SCROLL_THRESHOLDS = ['10', '20', '30', '50', 'never'];
@@ -1803,6 +1817,36 @@
       url.searchParams.set('query', searchName);
       url.searchParams.set('lang', linkLanguage);
       window.open(url.toString(), '_blank');
+    }
+
+    function openDiningCodeSearch() {
+      const dest = getActiveDestination();
+      const url = new URL('https://www.diningcode.com/list.dc');
+      url.searchParams.set('query', dest.koName);
+      window.open(url.toString(), '_blank', 'noopener,noreferrer');
+    }
+
+    function openCatchTable() {
+      window.open('https://app.catchtable.co.kr/ct/map/search-map?isInitSearch=1&serviceType=INTEGRATION&showTabs=true&bottomSheetHeightType=PARTIAL_MAP', '_blank', 'noopener,noreferrer');
+    }
+
+    function openPapago() {
+      const dest = getActiveDestination();
+      const url = new URL('https://papago.naver.com/');
+      url.searchParams.set('sk', 'ko');
+      url.searchParams.set('tk', 'en');
+      url.searchParams.set('st', dest.koName);
+      window.open(url.toString(), '_blank', 'noopener,noreferrer');
+    }
+
+    function openGoogleTranslate() {
+      const dest = getActiveDestination();
+      const url = new URL('https://translate.google.com/');
+      url.searchParams.set('sl', 'ko');
+      url.searchParams.set('tl', 'en');
+      url.searchParams.set('text', dest.koName);
+      url.searchParams.set('op', 'translate');
+      window.open(url.toString(), '_blank', 'noopener,noreferrer');
     }
 
     function escapeHtml(value) {
